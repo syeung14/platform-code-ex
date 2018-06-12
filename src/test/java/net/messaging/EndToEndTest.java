@@ -1,22 +1,31 @@
 package net.messaging;
 
-import net.messaging.Main;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.junit.Assert.assertThat;
 
-import org.junit.*;
+import java.io.IOException;
+import java.io.StringWriter;
+import java.io.Writer;
 
-import java.io.*;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
 
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.*;
+import net.messaging.sender.EmailMessageSender;
+import net.messaging.sender.Sender;
 
 public class EndToEndTest {
     private static final String NO_OUTPUT = "";
     private StringWriter network = new StringWriter();
     private StringWriter console = new StringWriter();
+    private Sender sender;
 
     @Before public void configureMainClassWithFakeOutputs() {
         Main.setNetwork(network);
         Main.setConsole(console);
+        sender = new EmailMessageSender(network);
+        Main.setSender(sender);
+        
     }
 
     @Test public void sendAnEmail_story1() {
@@ -30,7 +39,7 @@ public class EndToEndTest {
         consoleShouldReceive(NO_OUTPUT);
     }
 
-    @Ignore @Test public void sendAnEmail_AnotherExample_story1() {
+    @Test public void sendAnEmail_AnotherExample_story1() {
         Main.main("sally@example.com", "Greetings.\nHow's it going?");
         networkShouldReceive("connect smtp\n" +
                 "To: sally@example.com\n" +
