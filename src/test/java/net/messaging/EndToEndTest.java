@@ -11,7 +11,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import net.messaging.sender.ChatMessageSender;
@@ -116,8 +115,19 @@ public class EndToEndTest {
         consoleShouldReceive(NO_OUTPUT);
     }
 
-    @Ignore @Test public void handleErrorsGracefully_story8() {
-        Main.setNetwork(new BadNetworkConnection());
+    @Test
+    public void handleErrorsGracefully_story8() {
+    		Writer writer = new BadNetworkConnection();
+        
+    		Main.setNetwork(writer);
+        
+    		emailSender = new EmailMessageSender(writer);
+        chatSender = new ChatMessageSender(writer);
+        Map<String, Sender> senders = new HashMap<>();
+        senders.put(Constants.EMAIL_MSG_OPTION, emailSender);
+        senders.put(Constants.CHAT_MSG_OPTION, chatSender);
+        Main.setSenders(senders);
+        
         Main.main("joe@example.com", "Hi there!");
         consoleShouldReceive("Connection error. Please try again.\n");
     }
@@ -133,6 +143,9 @@ public class EndToEndTest {
     private static class BadNetworkConnection extends Writer {
         @Override public void write(char[] cbuf, int off, int len) throws IOException {
             throw new IOException("Oh no the network is down!!!!!!!111one");
+        }
+        @Override public void write(String str) throws IOException {
+        		throw new IOException("Oh no the network is down!!!!!!!111one");
         }
 
         @Override public void flush() throws IOException {

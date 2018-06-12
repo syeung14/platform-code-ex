@@ -18,12 +18,14 @@ public class ChatMessageSender implements Sender {
 	@Override
 	public void send(MessageVo message) throws IOException {
 		if (destination != null) {
-			destination.append(CONNECT_MSG).append(DELIMITER);
+			destination.write(CONNECT_MSG);
+			destination.write(DELIMITER);
 			for (String emails : message.getEmails()) {
-				destination.append(String.format(MESSAGE_FORMAT, emails, message.getMessageBody())).append(DELIMITER);
+				destination.write(String.format(MESSAGE_FORMAT, emails, message.getMessageBody()));
+				destination.write(DELIMITER);
 			}
-			destination.append(CLOSING_MSG);
-			destination.append(DELIMITER);
+			destination.write(CLOSING_MSG);
+			destination.write(DELIMITER);
 		} else {
 			System.out.println("Destination is not available.");
 		}

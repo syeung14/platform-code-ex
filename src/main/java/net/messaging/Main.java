@@ -43,7 +43,7 @@ public class Main {
 		MessageVo msgVo = new MessageVo(emails, messageBody);
 		return msgVo;
 	}
-	private void execute(String... args) {
+	private void execute(String... args) throws IOException {
 		String option = Constants.EMAIL_MSG_OPTION;
 		if (args.length == 3) {
 			option = args[0];
@@ -81,13 +81,17 @@ public class Main {
 			
 			sender.send(msgVo);
 		} catch (IOException e) {
-			e.printStackTrace();
+			Main.writeToConsole("Connection error. Please try again.");
 		}
 	}
 
 	public static void main(String... args) {
 		Main main = new Main();
-		main.execute(args);
+		try {
+			main.execute(args);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 
 	}
 
