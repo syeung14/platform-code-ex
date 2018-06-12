@@ -14,12 +14,14 @@ public class EmailMessageSender implements Sender {
 		this.destination = destination;
 	}
 	
-	@Override public void send(String emailAddress, String message) throws IOException{
+	@Override public void send(MessageVo message) throws IOException{
 		if (destination != null) {
 			destination.append(CONNECT_MSG).append(DELIMITER);
-			destination.append(MSG_INDICATOR).append(emailAddress).append(DELIMITER);
+			for (String emails: message.getEmails()) {
+				destination.append(MSG_INDICATOR).append(emails).append(DELIMITER);
+			}
 			destination.append(DELIMITER);
-			destination.append(message).append(DELIMITER);
+			destination.append(message.getMessageBody()).append(DELIMITER);
 			destination.append(DELIMITER);
 			destination.append(CLOSING_MSG);
 			destination.append(DELIMITER);

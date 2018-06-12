@@ -64,7 +64,7 @@ public class Main {
 	 			}
 			}
 			
-			Main.sender.send(email, message);
+			Main.sender.send(msgVo);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
