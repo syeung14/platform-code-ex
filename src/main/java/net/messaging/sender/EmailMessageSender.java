@@ -2,14 +2,14 @@ package net.messaging.sender;
 
 import java.io.IOException;
 import java.io.Writer;
+import static net.messaging.sender.Constants.*;
 
 public class EmailMessageSender implements Sender {
 	private static final String CONNECT_MSG = "connect smtp";
 	protected static final String CLOSING_MSG = "disconnect";
 	private static final String MSG_INDICATOR = "To: ";
-	private static final String DELIMITER = "\n";
 	
-	private Writer destination;
+	private static Writer destination;
 	public EmailMessageSender(Writer destination) {
 		this.destination = destination;
 	}

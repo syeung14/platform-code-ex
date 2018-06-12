@@ -6,26 +6,33 @@ import static org.junit.Assert.assertThat;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.util.Arrays;
+import java.util.List;
 
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
 import net.messaging.sender.EmailMessageSender;
+import net.messaging.sender.EmailValidator;
 import net.messaging.sender.Sender;
+import net.messaging.sender.Validator;
 
 public class EndToEndTest {
     private static final String NO_OUTPUT = "";
     private StringWriter network = new StringWriter();
     private StringWriter console = new StringWriter();
     private Sender sender;
+    private Validator validator;
 
     @Before public void configureMainClassWithFakeOutputs() {
         Main.setNetwork(network);
         Main.setConsole(console);
         sender = new EmailMessageSender(network);
+        validator = new EmailValidator();
         Main.setSender(sender);
         
+        Main.setValidators(Arrays.asList(validator));
     }
 
     @Test public void sendAnEmail_story1() {
@@ -51,7 +58,7 @@ public class EndToEndTest {
         consoleShouldReceive(NO_OUTPUT);
     }
 
-    @Ignore @Test public void showAnErrorAndDoNotSendIfTheEmailAddressIsInvalid_story2() {
+    @Test public void showAnErrorAndDoNotSendIfTheEmailAddressIsInvalid_story2() {
         Main.main("noatsign", "Hi there!");
         networkShouldReceive(NO_OUTPUT);
         consoleShouldReceive("Invalid email address: noatsign\n");
