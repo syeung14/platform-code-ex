@@ -7,11 +7,15 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import net.messaging.sender.ChatMessageSender;
+import net.messaging.sender.Constants;
 import net.messaging.sender.EmailMessageSender;
 import net.messaging.sender.EmailValidator;
 import net.messaging.sender.MessageBodyValidator;
@@ -22,18 +26,23 @@ public class EndToEndTest {
     private static final String NO_OUTPUT = "";
     private StringWriter network = new StringWriter();
     private StringWriter console = new StringWriter();
-    private Sender sender;
+    private Sender emailSender;
+    private Sender chatSender;
     private Validator emailValidator;
     private Validator msgBodyValidator;
 
     @Before public void configureMainClassWithFakeOutputs() {
         Main.setNetwork(network);
         Main.setConsole(console);
-        sender = new EmailMessageSender(network);
+        emailSender = new EmailMessageSender(network);
+        chatSender = new ChatMessageSender(network);
+        Map<String, Sender> senders = new HashMap<>();
+        senders.put(Constants.EMAIL_MSG_OPTION, emailSender);
+        senders.put(Constants.CHAT_MSG_OPTION, chatSender);
+        Main.setSenders(senders);
+        
         emailValidator = new EmailValidator();
         msgBodyValidator = new MessageBodyValidator();
-        Main.setSender(sender);
-        
         Main.setValidators(Arrays.asList(emailValidator,msgBodyValidator));
     }
 
@@ -48,7 +57,7 @@ public class EndToEndTest {
         consoleShouldReceive(NO_OUTPUT);
     }
 
-    @Test public void sendAnEmail_AnotherExample_story1() {
+    	@Test public void sendAnEmail_AnotherExample_story1() {
         Main.main("sally@example.com", "Greetings.\nHow's it going?");
         networkShouldReceive("connect smtp\n" +
                 "To: sally@example.com\n" +
@@ -90,7 +99,7 @@ public class EndToEndTest {
         consoleShouldReceive("Invalid email addresses: sallyatexample.com joeatexample.com\n");
     }
 
-    @Ignore @Test public void sendAMessageInAnotherFormat_story6() {
+    @Test public void sendAMessageInAnotherFormat_story6() {
         Main.main("-im", "leslie@chat.example.com", ":-) hey there!");
         networkShouldReceive("connect chat\n" +
                 "<leslie@chat.example.com>(:-) hey there!)\n" +

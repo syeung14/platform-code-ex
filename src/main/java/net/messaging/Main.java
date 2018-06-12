@@ -4,17 +4,19 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import net.messaging.sender.Constants;
 import net.messaging.sender.MessageVo;
 import net.messaging.sender.Sender;
 import net.messaging.sender.Validator;
 import net.messaging.util.MessageUtil;
+import net.messaging.util.SenderFactory;
 
 public class Main {
 	private static Writer network;
 	private static Writer console;
-	private static Sender sender;
+	private static Map<String, Sender> senders;
 	private static List<Validator> validators;
 
 	public static void setNetwork(Writer network) {
@@ -25,8 +27,8 @@ public class Main {
 		Main.console = console;
 	}
 
-	public static void setSender(Sender eMailsender) {
-		Main.sender = eMailsender;
+	public static void setSenders(Map<String, Sender> senders) {
+		Main.senders = senders;
 	}
 	public static void setValidators(List<Validator> validators) {
 		Main.validators = validators;
@@ -42,15 +44,25 @@ public class Main {
 		return msgVo;
 	}
 	private void execute(String... args) {
-		if ( (args.length != 2) ) {
+		String option = Constants.EMAIL_MSG_OPTION;
+		if (args.length == 3) {
+			option = args[0];
+		} else if ((args.length != 2)) {
 			System.out.println("Invalid parameters: <email> <message> ");
 			return;
 		}
 		try {
+			
 			String email = args[0];
 			String message = args[1];
 			
+			if (option.equals(Constants.CHAT_MSG_OPTION)) {
+				email = args[1];
+				message = args[2];
+			}
+			
 			MessageVo msgVo = createMessageVo(email, message);
+			Sender sender = SenderFactory.getSender(option, senders);
 			
 			List<String>errors = new ArrayList<>();
 			for (Validator validator: Main.validators) {
@@ -67,14 +79,13 @@ public class Main {
 	 			}
 			}
 			
-			Main.sender.send(msgVo);
+			sender.send(msgVo);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
 
 	public static void main(String... args) {
-
 		Main main = new Main();
 		main.execute(args);
 
