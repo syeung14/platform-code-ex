@@ -57,7 +57,10 @@ public class Main {
 				if (!validator.validate(msgVo, errors)) {
 	 				StringBuilder sb = new StringBuilder();
 					for (String e : errors) {
-						sb.append(e);
+						if (sb.length() == 0)
+							sb.append(e);
+						else 
+							sb.append(" ").append(e);
 	 				}
 	 				Main.writeToConsole(String.format(validator.getErrorMsg(), sb.toString()));
 	 				return;
