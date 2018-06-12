@@ -6,8 +6,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.messaging.sender.Constants;
+import net.messaging.sender.MessageVo;
 import net.messaging.sender.Sender;
 import net.messaging.sender.Validator;
+import net.messaging.util.MessageUtil;
 
 public class Main {
 	private static Writer network;
@@ -32,6 +34,13 @@ public class Main {
 	private static void writeToConsole(String message) throws IOException {
 		Main.console.append(message).append(Constants.DELIMITER);
 	}
+	
+	private MessageVo createMessageVo(String dest, String messageBody)  {
+		List<String>emails = new ArrayList<>();
+		emails = MessageUtil.getEmails(dest);
+		MessageVo msgVo = new MessageVo(emails, messageBody);
+		return msgVo;
+	}
 	private void execute(String... args) {
 		if ( (args.length != 2) ) {
 			System.out.println("Invalid parameters: <email> <message> ");
@@ -41,19 +50,21 @@ public class Main {
 			String email = args[0];
 			String message = args[1];
 			
+			MessageVo msgVo = createMessageVo(email, message);
+			
 			List<String>errors = new ArrayList<>();
 			for (Validator validator: Main.validators) {
-				if (validator.validate(email, errors)) {
-					Main.sender.send(email, message);
-				}else {
+				if (!validator.validate(msgVo, errors)) {
 	 				StringBuilder sb = new StringBuilder();
 					for (String e : errors) {
 						sb.append(e);
 	 				}
 	 				Main.writeToConsole(String.format(validator.getErrorMsg(), sb.toString()));
+	 				return;
 	 			}
 			}
 			
+			Main.sender.send(email, message);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

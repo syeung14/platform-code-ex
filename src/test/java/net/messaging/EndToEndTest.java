@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.Arrays;
-import java.util.List;
 
 import org.junit.Before;
 import org.junit.Ignore;
@@ -15,6 +14,7 @@ import org.junit.Test;
 
 import net.messaging.sender.EmailMessageSender;
 import net.messaging.sender.EmailValidator;
+import net.messaging.sender.MessageBodyValidator;
 import net.messaging.sender.Sender;
 import net.messaging.sender.Validator;
 
@@ -23,16 +23,18 @@ public class EndToEndTest {
     private StringWriter network = new StringWriter();
     private StringWriter console = new StringWriter();
     private Sender sender;
-    private Validator validator;
+    private Validator emailValidator;
+    private Validator msgBodyValidator;
 
     @Before public void configureMainClassWithFakeOutputs() {
         Main.setNetwork(network);
         Main.setConsole(console);
         sender = new EmailMessageSender(network);
-        validator = new EmailValidator();
+        emailValidator = new EmailValidator();
+        msgBodyValidator = new MessageBodyValidator();
         Main.setSender(sender);
         
-        Main.setValidators(Arrays.asList(validator));
+        Main.setValidators(Arrays.asList(emailValidator,msgBodyValidator));
     }
 
     @Test public void sendAnEmail_story1() {
@@ -64,7 +66,7 @@ public class EndToEndTest {
         consoleShouldReceive("Invalid email address: noatsign\n");
     }
 
-    @Ignore @Test public void showAnErrorAndDoNotSendIfTheBodyIsInvalid_story3() {
+    @Test public void showAnErrorAndDoNotSendIfTheBodyIsInvalid_story3() {
         Main.main("dinah@example.com", "");
         networkShouldReceive(NO_OUTPUT);
         consoleShouldReceive("Cannot send an email with no body.\n");
